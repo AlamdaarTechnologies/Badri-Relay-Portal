@@ -241,7 +241,7 @@ export default function AdminAccounts() {
                   </td>
                   <td style={{ ...tdStyle, textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                      {admin.inUse && admin.role !== 'master' && (
+                      {admin.inUse && (
                         <button
                           onClick={() => handleForceLogout(admin._id)}
                           style={{ ...actionBtnStyle, color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)' }}
@@ -258,7 +258,7 @@ export default function AdminAccounts() {
                           Delete
                         </button>
                       )}
-                      {admin.role === 'master' && (
+                      {admin.role === 'master' && !admin.inUse && (
                         <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
                           Protected
                         </span>
