@@ -21,12 +21,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid ITS Number' }, { status: 404 })
     }
 
-    // 2. Check if code is disabled or already in use
+    // 2. Check if code is disabled
     if (accessCode.isDisabled) {
       return NextResponse.json({ error: 'This ITS Number has been disabled' }, { status: 403 })
     }
+
+    // 3. If code is marked "in use", check if the session is actually alive
     if (accessCode.inUse) {
-      return NextResponse.json({ error: 'Code already in use' }, { status: 403 })
+      const existingSession = await ViewerSession.findOne({ accessCodeId: accessCode._id })
+      
+      if (existingSession) {
+        const lastBeat = new Date(existingSession.lastHeartbeat).getTime()
+        const now = Date.now()
+        const twoMinutes = 2 * 60 * 1000
+
+        if (now - lastBeat > twoMinutes) {
+          // Session is stale (no heartbeat for 2+ minutes) — clean it up
+          await ViewerSession.deleteOne({ _id: existingSession._id })
+          await AccessCode.updateOne({ _id: accessCode._id }, { inUse: false })
+          // Allow login to proceed below
+        } else {
+          // Session is genuinely active
+          return NextResponse.json({ error: 'Code already in use' }, { status: 403 })
+        }
+      } else {
+        // inUse flag is orphaned (no session exists) — reset it
+        await AccessCode.updateOne({ _id: accessCode._id }, { inUse: false })
+      }
     }
 
     // 3. Create a new session
