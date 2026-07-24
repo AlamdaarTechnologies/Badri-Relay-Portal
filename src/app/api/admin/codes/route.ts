@@ -2,11 +2,36 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectToDatabase from '@/lib/mongoose'
 import AccessCode from '@/models/AccessCode'
 
+import ViewerSession from '@/models/ViewerSession'
+
 export async function GET() {
   try {
     await connectToDatabase()
     const codes = await AccessCode.find({}).sort({ createdAt: -1 })
-    return NextResponse.json(codes)
+    
+    // Fetch all sessions to calculate real-time online status
+    const activeSessions = await ViewerSession.find({})
+    const now = Date.now()
+    const STALE_THRESHOLD = 2 * 60 * 1000 // 2 minutes
+    
+    // A code is actually in use if there is a session that has pinged within the last 2 minutes
+    const trulyActiveCodes = new Set(
+      activeSessions
+        .filter(session => {
+          if (!session.lastHeartbeat) return false
+          return (now - new Date(session.lastHeartbeat).getTime()) < STALE_THRESHOLD
+        })
+        .map(session => session.code)
+    )
+
+    const codesWithRealtimeStatus = codes.map(codeDoc => {
+      const code = codeDoc.toObject()
+      // Override the database flag with real-time heartbeat data
+      code.inUse = trulyActiveCodes.has(code.code)
+      return code
+    })
+
+    return NextResponse.json(codesWithRealtimeStatus)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch codes' }, { status: 500 })
   }
