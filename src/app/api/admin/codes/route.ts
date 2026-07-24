@@ -12,7 +12,7 @@ export async function GET() {
     // Fetch all sessions to calculate real-time online status
     const activeSessions = await ViewerSession.find({})
     const now = Date.now()
-    const STALE_THRESHOLD = 2 * 60 * 1000 // 2 minutes
+    const STALE_THRESHOLD = 10 * 1000 // 10 seconds (viewers heartbeat every 1s)
     
     // Build a set of accessCodeId strings that have an active heartbeat
     const activeCodeIds = new Set(
