@@ -104,6 +104,23 @@ export default function AdminCodes() {
     }
   }
 
+  const handleForceLogoutAll = async () => {
+    if (!confirm('WARNING: Are you absolutely sure you want to forcefully logout ALL active viewers?')) return
+    try {
+      const res = await fetch('/api/admin/codes/force-logout-all', { method: 'POST' })
+      if (res.ok) {
+        toast.success('All viewers forced out')
+        fetchCodes()
+      } else {
+        const data = await res.json()
+        toast.error(data.error || 'Failed to force logout all')
+      }
+    } catch (err) {
+      console.error('Failed to force logout all', err)
+      toast.error('An error occurred')
+    }
+  }
+
   const copyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code)
     setCopiedId(id)
@@ -119,19 +136,28 @@ export default function AdminCodes() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 className="heading-1" style={{ marginBottom: '0.25rem' }}>ITS Numbers</h1>
           <p style={{ color: 'var(--text-secondary)' }}>
             Create and manage viewer ITS Numbers.
           </p>
         </div>
-        <button
-          className="btn-primary"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? 'Cancel' : '+ New Code'}
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button
+            onClick={handleForceLogoutAll}
+            style={{ ...actionBtnStyle, padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--status-live)', borderColor: 'rgba(239, 68, 68, 0.3)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--status-live)' }} />
+            Force Logout All
+          </button>
+          <button
+            className="btn-primary"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? 'Cancel' : '+ New Code'}
+          </button>
+        </div>
       </div>
 
       {/* Create Form */}
