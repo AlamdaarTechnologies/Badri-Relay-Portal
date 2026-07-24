@@ -33,10 +33,10 @@ export async function POST(req: NextRequest) {
       if (existingSession) {
         const lastBeat = new Date(existingSession.lastHeartbeat).getTime()
         const now = Date.now()
-        const twoMinutes = 2 * 60 * 1000
+        const staleThreshold = 3 * 1000 // 3 seconds (viewers heartbeat every 1s)
 
-        if (now - lastBeat > twoMinutes) {
-          // Session is stale (no heartbeat for 2+ minutes) — clean it up
+        if (now - lastBeat > staleThreshold) {
+          // Session is stale (no heartbeat for 3+ seconds) — clean it up
           await ViewerSession.deleteOne({ _id: existingSession._id })
           await AccessCode.updateOne({ _id: accessCode._id }, { inUse: false })
           // Allow login to proceed below
