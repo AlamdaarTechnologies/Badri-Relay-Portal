@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# Custom ignores for relay streaming
+dev.db
+error.html
+media-server.mjs
+mediamtx*
+setup-admin.mjs
+test-db.mjs
+test-db.ts
+test-neon.mjs
+update-css.js
+Trust_Streaming_Portal_PRD.md
+favicon/

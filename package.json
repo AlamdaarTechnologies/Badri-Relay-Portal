@@ -3,22 +3,44 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev:next": "next dev",
+    "dev:media": "node media-server.mjs",
+    "dev": "concurrently \"npm run dev:next\" \"npm run dev:media\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "bcrypt": "^6.0.0",
+    "clsx": "^2.1.1",
+    "concurrently": "^9.2.4",
+    "framer-motion": "^12.42.2",
+    "hls.js": "^1.6.16",
+    "jose": "^6.2.3",
+    "lucide-react": "^1.24.0",
+    "mongoose": "^9.7.4",
     "next": "16.2.10",
+    "node-media-server": "^4.2.8",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-hot-toast": "^2.6.0",
+    "react-player": "^3.4.0",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "tsx": "^4.23.0",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

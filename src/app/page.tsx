@@ -1,66 +1,121 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
 
-export default function Home() {
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { KeyRound } from 'lucide-react'
+import toast from 'react-hot-toast'
+
+export default function UserLogin() {
+  const [code, setCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (code.length !== 8) {
+      toast.error('ITS Number must be exactly 8 digits')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/auth/access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to authenticate')
+      }
+
+      toast.success('Access Granted')
+      router.push('/user/live')
+      router.refresh()
+    } catch (err: any) {
+      toast.error(err.message)
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="login-bg centered-container">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="premium-card" 
+        style={{ width: '100%', maxWidth: '450px', textAlign: 'center' }}
+      >
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+            <div style={{ background: '#0f172a', padding: '1rem', borderRadius: '50%' }}>
+              <KeyRound size={32} color="#ffffff" />
+            </div>
+          </div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '0.5rem' }}>
+            Badri Relay
+          </h1>
+          <p style={{ color: '#64748b' }}>Enter your 8-digit ITS Number</p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, '')
+                if (val.length <= 8) setCode(val)
+              }}
+              placeholder="••••••••"
+              style={{
+                width: '100%',
+                padding: '1rem',
+                fontSize: '1.5rem',
+                letterSpacing: '0.5rem',
+                textAlign: 'center',
+                background: '#f8fafc',
+                border: '2px solid #e2e8f0',
+                borderRadius: '8px',
+                color: '#0f172a',
+                outline: 'none',
+                transition: 'all 0.2s',
+                fontWeight: '600'
+              }}
+              onFocus={(e) => (e.target.style.borderColor = '#0f172a')}
+              onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit" 
+            disabled={loading}
+            style={{ 
+              width: '100%', 
+              padding: '1rem', 
+              fontSize: '1.1rem', 
+              background: '#0f172a',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '600',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              transition: 'all 0.2s'
+            }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
+            {loading ? 'Verifying...' : 'Access Stream'}
+          </motion.button>
+        </form>
+      </motion.div>
     </div>
-  );
+  )
 }
