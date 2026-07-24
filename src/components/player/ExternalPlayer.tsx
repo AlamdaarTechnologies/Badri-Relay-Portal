@@ -24,7 +24,7 @@ export default function ExternalPlayer({ videoId, title }: ExternalPlayerProps) 
   const [showControls, setShowControls] = useState(true)
   const [isRevealed, setIsRevealed] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
-  const hideTimerRef = useRef<NodeJS.Timeout>()
+  const hideTimerRef = useRef<NodeJS.Timeout>(null)
 
   useEffect(() => {
     if (window.YT && window.YT.Player) {
