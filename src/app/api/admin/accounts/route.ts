@@ -32,7 +32,26 @@ export async function GET() {
   try {
     await connectToDatabase()
     const admins = await Admin.find({}).select('-passwordHash -sessionToken').sort({ createdAt: -1 })
-    return NextResponse.json(admins)
+    
+    const now = Date.now()
+    const adminsWithRealtimeStatus = admins.map(admin => {
+      let isOnline = false
+      if (admin.inUse && admin.lastHeartbeat) {
+        const diff = now - new Date(admin.lastHeartbeat).getTime()
+        // Admins ping every 1s, so give a 5s grace period
+        if (diff < 5000) {
+          isOnline = true
+        }
+      }
+      
+      const adminObj = admin.toObject()
+      return {
+        ...adminObj,
+        inUse: isOnline
+      }
+    })
+    
+    return NextResponse.json(adminsWithRealtimeStatus)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch admins' }, { status: 500 })
   }
