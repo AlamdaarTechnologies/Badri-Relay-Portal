@@ -14,20 +14,20 @@ export async function GET() {
     const now = Date.now()
     const STALE_THRESHOLD = 2 * 60 * 1000 // 2 minutes
     
-    // A code is actually in use if there is a session that has pinged within the last 2 minutes
-    const trulyActiveCodes = new Set(
+    // Build a set of accessCodeId strings that have an active heartbeat
+    const activeCodeIds = new Set(
       activeSessions
         .filter(session => {
           if (!session.lastHeartbeat) return false
           return (now - new Date(session.lastHeartbeat).getTime()) < STALE_THRESHOLD
         })
-        .map(session => session.code)
+        .map(session => session.accessCodeId.toString())
     )
 
     const codesWithRealtimeStatus = codes.map(codeDoc => {
       const code = codeDoc.toObject()
       // Override the database flag with real-time heartbeat data
-      code.inUse = trulyActiveCodes.has(code.code)
+      code.inUse = activeCodeIds.has(codeDoc._id.toString())
       return code
     })
 
