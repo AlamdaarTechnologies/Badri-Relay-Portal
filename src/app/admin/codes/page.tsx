@@ -163,7 +163,7 @@ export default function AdminCodes() {
               borderRadius: '50%',
               background: '#3b82f6',
             }} />
-            Total : {codes.length}
+            ITS Numbers : {codes.length}
           </div>
 
           {/* Active Viewer Badge */}
