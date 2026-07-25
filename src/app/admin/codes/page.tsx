@@ -144,6 +144,26 @@ export default function AdminCodes() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            borderRadius: 'var(--radius-xl)',
+            background: codes.filter(c => c.inUse).length > 0 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(100, 116, 139, 0.15)',
+            border: `1px solid ${codes.filter(c => c.inUse).length > 0 ? 'rgba(34, 197, 94, 0.3)' : 'rgba(100, 116, 139, 0.3)'}`,
+            color: codes.filter(c => c.inUse).length > 0 ? 'var(--status-success)' : 'var(--text-muted)',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+          }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: codes.filter(c => c.inUse).length > 0 ? 'var(--status-success)' : 'var(--text-muted)',
+            }} />
+            Active : {codes.filter(c => c.inUse).length}
+          </div>
           <button
             onClick={handleForceLogoutAll}
             style={{ ...actionBtnStyle, padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--status-live)', borderColor: 'rgba(239, 68, 68, 0.3)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
