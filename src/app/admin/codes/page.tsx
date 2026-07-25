@@ -144,6 +144,29 @@ export default function AdminCodes() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          {/* Total Codes Badge */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            borderRadius: 'var(--radius-xl)',
+            background: 'rgba(59, 130, 246, 0.15)', // Blue tint
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            color: '#3b82f6', // Tailwind blue-500
+            fontWeight: 600,
+            fontSize: '0.9rem',
+          }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#3b82f6',
+            }} />
+            Total : {codes.length}
+          </div>
+
+          {/* Active Viewer Badge */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
