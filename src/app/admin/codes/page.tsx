@@ -336,8 +336,8 @@ export default function AdminCodes() {
                   return code.code.includes(query) || (code.label && code.label.toLowerCase().includes(query))
                 })
                 .sort((a, b) => {
-                  let valA: any = a[sortColumn]
-                  let valB: any = b[sortColumn]
+                  let valA: any = sortColumn === 'status' ? null : a[sortColumn as keyof AccessCode]
+                  let valB: any = sortColumn === 'status' ? null : b[sortColumn as keyof AccessCode]
                   
                   if (sortColumn === 'status') {
                     const getStatus = (c: AccessCode) => c.isDisabled ? 2 : (c.inUse ? 1 : 0)
