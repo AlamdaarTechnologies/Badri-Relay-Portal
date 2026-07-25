@@ -20,6 +20,9 @@ export default function AdminCodes() {
   const [newLabel, setNewLabel] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  type SortColumn = 'code' | 'label' | 'status' | 'createdAt'
+  const [sortColumn, setSortColumn] = useState<SortColumn>('createdAt')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [searchQuery, setSearchQuery] = useState('')
 
   const fetchCodes = useCallback(async () => {
@@ -133,6 +136,20 @@ export default function AdminCodes() {
     navigator.clipboard.writeText(link)
     setCopiedId(`link-${id}`)
     setTimeout(() => setCopiedId(null), 2000)
+  }
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+  }
+
+  const renderSortIndicator = (column: SortColumn) => {
+    if (sortColumn !== column) return <span style={{ opacity: 0.3, marginLeft: '0.25rem' }}>↕</span>
+    return <span style={{ color: 'var(--accent-cyan)', marginLeft: '0.25rem' }}>{sortDirection === 'asc' ? '↑' : '↓'}</span>
   }
 
   return (
@@ -297,10 +314,18 @@ export default function AdminCodes() {
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
-                <th style={thStyle}>ITS Number</th>
-                <th style={thStyle}>Label</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Created</th>
+                <th style={{ ...thStyle, cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort('code')}>
+                  ITS Number {renderSortIndicator('code')}
+                </th>
+                <th style={{ ...thStyle, cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort('label')}>
+                  Label {renderSortIndicator('label')}
+                </th>
+                <th style={{ ...thStyle, cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort('status')}>
+                  Status {renderSortIndicator('status')}
+                </th>
+                <th style={{ ...thStyle, cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort('createdAt')}>
+                  Created {renderSortIndicator('createdAt')}
+                </th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -309,6 +334,26 @@ export default function AdminCodes() {
                 .filter((code) => {
                   const query = searchQuery.toLowerCase()
                   return code.code.includes(query) || (code.label && code.label.toLowerCase().includes(query))
+                })
+                .sort((a, b) => {
+                  let valA: any = a[sortColumn]
+                  let valB: any = b[sortColumn]
+                  
+                  if (sortColumn === 'status') {
+                    const getStatus = (c: AccessCode) => c.isDisabled ? 2 : (c.inUse ? 1 : 0)
+                    valA = getStatus(a)
+                    valB = getStatus(b)
+                  } else if (sortColumn === 'label') {
+                    valA = (a.label || '').toLowerCase()
+                    valB = (b.label || '').toLowerCase()
+                  } else if (sortColumn === 'createdAt') {
+                    valA = new Date(a.createdAt).getTime()
+                    valB = new Date(b.createdAt).getTime()
+                  }
+                  
+                  if (valA < valB) return sortDirection === 'asc' ? -1 : 1
+                  if (valA > valB) return sortDirection === 'asc' ? 1 : -1
+                  return 0
                 })
                 .map((code) => (
                 <tr key={code._id} style={{ borderBottom: '1px solid var(--border-light)' }}>
