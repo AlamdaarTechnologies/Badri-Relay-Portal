@@ -20,6 +20,7 @@ export default function AdminCodes() {
   const [newLabel, setNewLabel] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const fetchCodes = useCallback(async () => {
     try {
@@ -257,6 +258,29 @@ export default function AdminCodes() {
         </div>
       )}
 
+      {/* Search Bar */}
+      {!loading && codes.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <input
+            type="text"
+            placeholder="Search by ITS Number or Label..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              maxWidth: '400px',
+              padding: '0.75rem 1rem',
+              borderRadius: 'var(--radius-sm)',
+              background: 'rgba(0,0,0,0.2)',
+              border: '1px solid var(--border-light)',
+              color: 'white',
+              outline: 'none',
+              fontSize: '0.9rem',
+            }}
+          />
+        </div>
+      )}
+
       {/* Codes Table */}
       {loading ? (
         <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
@@ -281,7 +305,12 @@ export default function AdminCodes() {
               </tr>
             </thead>
             <tbody>
-              {codes.map((code) => (
+              {codes
+                .filter((code) => {
+                  const query = searchQuery.toLowerCase()
+                  return code.code.includes(query) || (code.label && code.label.toLowerCase().includes(query))
+                })
+                .map((code) => (
                 <tr key={code._id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td style={tdStyle}>
                     <code style={{
