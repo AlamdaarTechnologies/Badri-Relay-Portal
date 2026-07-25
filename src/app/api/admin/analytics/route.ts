@@ -7,14 +7,27 @@ export async function GET() {
   try {
     await connectToDatabase()
     const totalCodes = await AccessCode.countDocuments()
-    const activeSessions = await ViewerSession.countDocuments()
+    const sessions = await ViewerSession.find({})
+    const now = Date.now()
+    const STALE_THRESHOLD = 3 * 1000 // 3 seconds
+
+    // Filter sessions to only those that have pinged in the last 3 seconds
+    const activeSessionsArray = sessions.filter(s => {
+      if (!s.lastHeartbeat) return false
+      return (now - new Date(s.lastHeartbeat).getTime()) < STALE_THRESHOLD
+    })
+
+    const activeSessionsCount = activeSessionsArray.length
     
-    // We consider "used codes" as those currently inUse
-    const activeCodesCount = await AccessCode.countDocuments({ inUse: true })
+    // Unique codes currently in use
+    const uniqueActiveCodeIds = new Set(
+      activeSessionsArray.map(s => s.accessCodeId.toString())
+    )
+    const activeCodesCount = uniqueActiveCodeIds.size
 
     return NextResponse.json({
       totalCodes,
-      activeSessions,
+      activeSessions: activeSessionsCount,
       activeCodesCount
     })
   } catch (error) {
