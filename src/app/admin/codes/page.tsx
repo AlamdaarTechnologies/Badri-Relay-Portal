@@ -401,7 +401,7 @@ export default function AdminCodes() {
                           borderRadius: '50%',
                           background: code.inUse ? 'var(--status-success)' : 'var(--text-muted)',
                         }} />
-                        {code.inUse ? 'Active' : 'Available'}
+                        {code.inUse ? 'Active' : 'Inactive'}
                       </span>
                     )}
                   </td>
