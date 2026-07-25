@@ -70,6 +70,7 @@ export default function ExternalPlayer({ videoId, title }: ExternalPlayerProps) 
       },
       events: {
         onReady: (event: any) => {
+          event.target.mute() // Mute initially during loading screen
           event.target.playVideo()
           setVolume(event.target.getVolume())
           
@@ -103,6 +104,10 @@ export default function ExternalPlayer({ videoId, title }: ExternalPlayerProps) 
               if (progress >= 100) {
                 clearInterval(interval)
                 setIsRevealed(true)
+                // Unmute when revealed
+                if (!isMuted) {
+                  event.target.unMute()
+                }
               }
             }, 50)
           }
